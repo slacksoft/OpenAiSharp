@@ -172,9 +172,10 @@ namespace OpenAISharp
                     return linejson;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 // Handle exceptions / 处理异常
-                return new ChatCompletionChunk { Choices=new List<Choice> { new Choice { Delta = new Delta {  Content = line} } } };
+                return new ChatCompletionChunk { Choices = new List<Choice> { new Choice { Delta = new Delta { Content = line } } } };
             }
             return null;
         }
@@ -195,9 +196,10 @@ namespace OpenAISharp
             };
             string modelsUrl = uriBuilder.ToString();
 
-            // Create HTTP client / 创建HTTP客户端
-            using (var client = new HttpClient())
+            try
             {
+                // Create HTTP client / 创建HTTP客户端
+                var client = new HttpClient();
                 // Set authorization header / 设置授权头
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", configuration.ApiKey);
 
@@ -209,7 +211,12 @@ namespace OpenAISharp
                 var responseObject = JsonConvert.DeserializeObject<ModelListResponse>(jsonResponse);
 
                 // Return response or throw exception / 返回响应或抛出异常
-                return responseObject ?? throw new InvalidOperationException("Failed to deserialize response.");
+                return responseObject!;
+
+            }
+            catch (Exception ex)
+            {
+                return new ModelListResponse { Data = new List<ModelInfo> { new ModelInfo { Id = "Invalid request" } } };
             }
         }
     }
